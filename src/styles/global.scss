@@ -1,0 +1,151 @@
+* {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  list-style-type: none;
+  box-sizing: border-box;
+}
+:root {
+  --color-primary: #1890ff;
+  --color-warning: #faad14;
+  --color-error: #f5222d;
+}
+.text-primary {
+  color: var(--color-primary);
+}
+.text-warning {
+  color: var(--color-warning);
+}
+.text-error {
+  color: var(--color-error);
+}
+.bg-primary {
+  background-color: var(--color-primary);
+}
+.bg-warning {
+  background-color: var(--color-warning);
+}
+.bg-error {
+  background-color: var(--color-error);
+}
+html {
+  font-size: 625%;
+}
+body {
+  font-size: .12rem;
+}
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-row-reverse {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-col-reverse {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.flex-jst-start {
+  justify-content: flex-start;
+}
+
+.flex-jst-end {
+  justify-content: flex-end;
+}
+
+.flex-jst-center {
+  justify-content: center;
+}
+
+.flex-jst-btw {
+  justify-content: space-between;
+}
+
+.flex-jst-ard {
+  justify-content: space-around;
+}
+
+.flex-ali-start {
+  align-items: flex-start;
+}
+
+.flex-ali-end {
+  align-items: flex-end;
+}
+
+.flex-ali-center {
+  align-items: center;
+}
+
+.flex-ali-base {
+  align-items: baseline;
+}
+
+.flex-ali-stretch {
+  align-items: stretch;
+}
+
+.self-stretch {
+  align-self: stretch;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-2 {
+  flex: 2;
+}
+
+.flex-3 {
+  flex: 3;
+}
+
+.flex-4 {
+  flex: 4;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+.full-width {
+  width: 100%;
+}
+.full-height {
+  height: 100%;
+}
+
+// 滚动条美化
+.scroll-bar{
+  overflow: auto;
+  &::-webkit-scrollbar{
+    width: 8px;
+    height: 1px;
+  }
+  &::-webkit-scrollbar-thumb{
+    box-shadow: inset 0 0 5px rgba(24, 144, 255,.2);
+    background: rgba(82, 83, 83, 0.2);
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-track{
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+  }
+}
+
+.pos-relative {
+  position: relative;
+}
