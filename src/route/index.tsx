@@ -30,6 +30,10 @@ const routeList: RouteObject[] = [
         element: <LazyImportComponent lazyChildren={Home} />,
       },
       {
+        path: 'village',
+        element: <LazyImportComponent lazyChildren={lazy(() => import('../pages/village'))} />,
+      },
+      {
         index: true,
         // element: <div onClick={() => {
         //   document.documentElement.style.setProperty('--color-primary', 'red')

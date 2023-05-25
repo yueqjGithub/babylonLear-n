@@ -19,6 +19,7 @@ const PageLayout = () => {
         <h3>入门</h3>
         <ul>
           <li><Link className="text-primary" to={'/home'}>HOME</Link></li>
+          <li><Link className="text-primary" to={'/village'}>农村</Link></li>
         </ul>
       </div>
       <div className={`${styles.contentContainer} flex-1 full-height`}>
