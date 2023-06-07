@@ -3,9 +3,7 @@ import { RouteObject, useRoutes, useNavigate } from "react-router";
 import LoginPage from "../pages/Login";
 import PageLayout from "../layout/pageLayout";
 import { lazy, useEffect } from "react";
-import LazyImportComponent from "../components/LazyImportComponent";
 
-const Home = lazy(() => import('../pages/Home'))
 const RedirectComponent = (props: { to: string }) => {
   const navigate = useNavigate()
   useEffect(() => {
@@ -27,11 +25,11 @@ const routeList: RouteObject[] = [
     children: [
       {
         path: 'home',
-        element: <LazyImportComponent lazyChildren={Home} />,
+        Component: lazy(() => import('../pages/Home'))
       },
       {
         path: 'village',
-        element: <LazyImportComponent lazyChildren={lazy(() => import('../pages/village'))} />,
+        Component: lazy(() => import('../pages/village'))
       },
       {
         index: true,

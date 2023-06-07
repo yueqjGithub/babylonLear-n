@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
 import styles from './layout.module.scss'
 const PageLayout = () => {
@@ -24,7 +24,9 @@ const PageLayout = () => {
       </div>
       <div className={`${styles.contentContainer} flex-1 full-height`}>
         <div className={`${styles.contentOutlet} full-height scroll-bar`}>
+        <Suspense fallback={<div className="full-width full-height flex-row flex-jst-center flex-ali-center">loading...</div>}>
         <Outlet></Outlet>
+        </Suspense>
         </div>
       </div>
     </div>

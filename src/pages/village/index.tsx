@@ -1,5 +1,6 @@
 import { ArcRotateCamera, Color3, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, StandardMaterial, Texture, Vector3, Vector4 } from "@babylonjs/core"
 import { useEffect, useRef } from "react"
+import earcut from 'earcut'
 
 const Village = () => {
   const outRef = useRef<HTMLDivElement>(null)
@@ -59,7 +60,7 @@ const Village = () => {
     const camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 2.5, 20, new Vector3(0, 0, 0), scene)
     camera.attachControl(ref.current, true)
 
-    const light = new HemisphericLight('light', new Vector3(1, 1, 0), scene)
+    const light = new HemisphericLight('light', new Vector3(0, 1, 0), scene)
 
     // 上面三要素不用说了噻
     // 地面
@@ -164,12 +165,69 @@ const Village = () => {
     rHouse5!.rotation.y = Math.PI / 1.2
   }
 
+  const genCar = (scene: Scene) => {
+
+    // 车身UV
+    const faceUV = new Array(2)
+    faceUV[0] = new Vector4(0, 1, 0.38, 1)
+    faceUV[1] = new Vector4(0, 0, 1, 0.5)
+    faceUV[2] = new Vector4(0.38, 1, 0, 0.5)
+    const faceMat = new StandardMaterial("faceMat");
+    faceMat.diffuseTexture = new Texture("https://doc.babylonjs.com/img/getstarted/car.png", scene);
+
+    const outline = [
+      new Vector3(-0.3, 0, -0.1),
+      new Vector3(0.2, 0, -0.1),
+    ]
+    for (let i = 0; i < 20; i++) {
+      outline.push(
+        new Vector3(0.2 * Math.cos(i * Math.PI / 40), 0, 0.2 * Math.sin(i * Math.PI / 40) - 0.1)
+      )
+    }
+    outline.push(new Vector3(-0.3, 0, 0.1))
+    outline.push(new Vector3(-0.3, 0, -0.1))
+
+    const car = MeshBuilder.ExtrudePolygon('car', { shape: outline, depth: 0.2, faceUV, wrap: true }, scene, earcut)
+    car.material = faceMat
+
+    //wheel face UVs
+    const wheelUV = [];
+    wheelUV[0] = new Vector4(0, 0, 1, 1);
+    wheelUV[1] = new Vector4(0, 0.5, 0, 0.5);
+    wheelUV[2] = new Vector4(0, 0, 1, 1);
+
+    const wheelMat = new StandardMaterial("wheelMat");
+    wheelMat.diffuseTexture = new Texture("https://assets.babylonjs.com/environments/wheel.png");
+
+    const wheelRB = MeshBuilder.CreateCylinder("wheelRB", {diameter: 0.125, height: 0.05, faceUV: wheelUV})
+    wheelRB.material = wheelMat;
+    wheelRB.parent = car;
+    wheelRB.position.z = -0.1;
+    wheelRB.position.x = -0.2;
+    wheelRB.position.y = 0.035;
+
+    const wheelRF = wheelRB.clone("wheelRF");
+    wheelRF.position.x = 0.1;
+
+    const wheelLB = wheelRB.clone("wheelLB");
+    wheelLB.position.y = -0.2 - 0.035;
+
+    const wheelLF = wheelRF.clone("wheelLF");
+    wheelLF.position.y = -0.2 - 0.035;
+
+    // car position
+    car.rotation.x = - Math.PI / 2
+    car.position.y = 0.1 + 0.135
+  }
+
   useEffect(() => {
     if (!renderRef.current) {
       const engine = new Engine(ref.current, true)
 
       const scenne = createScene(engine)
-      putHouses(scenne)
+      // putHouses(scenne)
+
+      genCar(scenne)
 
       engine.runRenderLoop(() => {
         scenne.render()
