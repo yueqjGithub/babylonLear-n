@@ -1,4 +1,4 @@
-import { ArcRotateCamera, Color3, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, StandardMaterial, Texture, Vector3, Vector4 } from "@babylonjs/core"
+import { Animation, ArcRotateCamera, Color3, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, StandardMaterial, Texture, Vector3, Vector4 } from "@babylonjs/core"
 import { useEffect, useRef } from "react"
 import earcut from 'earcut'
 
@@ -169,11 +169,11 @@ const Village = () => {
 
     // 车身UV
     const faceUV = new Array(2)
-    faceUV[0] = new Vector4(0, 1, 0.38, 1)
-    faceUV[1] = new Vector4(0, 0, 1, 0.5)
-    faceUV[2] = new Vector4(0.38, 1, 0, 0.5)
+    faceUV[0] = new Vector4(0, 0.5, 0.38, 1);
+    faceUV[1] = new Vector4(0, 0, 1, 0.5);
+    faceUV[2] = new Vector4(0.38, 1, 0, 0.5);
     const faceMat = new StandardMaterial("faceMat");
-    faceMat.diffuseTexture = new Texture("https://doc.babylonjs.com/img/getstarted/car.png", scene);
+    faceMat.diffuseTexture = new Texture("https://assets.babylonjs.com/environments/car.png", scene);
 
     const outline = [
       new Vector3(-0.3, 0, -0.1),
@@ -206,6 +206,22 @@ const Village = () => {
     wheelRB.position.x = -0.2;
     wheelRB.position.y = 0.035;
 
+    const animWheel = new Animation('wheelAnimation', 'rotation.y', 30, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CYCLE);
+    // 关键帧
+    const wheelKeys = []
+    wheelKeys.push({
+        frame: 0,
+        value: 0
+    })
+    wheelKeys.push({
+        frame: 30,
+        value: 2 * Math.PI
+    })
+    animWheel.setKeys(wheelKeys)
+    wheelRB.animations = []
+    wheelRB.animations.push(animWheel)
+    scene.beginAnimation(wheelRB, 0, 30, true)
+
     const wheelRF = wheelRB.clone("wheelRF");
     wheelRF.position.x = 0.1;
 
@@ -215,9 +231,17 @@ const Village = () => {
     const wheelLF = wheelRF.clone("wheelLF");
     wheelLF.position.y = -0.2 - 0.035;
 
+    scene.beginAnimation(wheelRF, 0, 30, true);
+    scene.beginAnimation(wheelLB, 0, 30, true);
+    scene.beginAnimation(wheelLF, 0, 30, true);
+
     // car position
     car.rotation.x = - Math.PI / 2
-    car.position.y = 0.1 + 0.135
+    car.position.y = 0.1 + 0.1
+
+    car.position.x = 2
+
+    return car
   }
 
   useEffect(() => {
@@ -225,7 +249,7 @@ const Village = () => {
       const engine = new Engine(ref.current, true)
 
       const scenne = createScene(engine)
-      // putHouses(scenne)
+      putHouses(scenne)
 
       genCar(scenne)
 
