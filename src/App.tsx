@@ -1,3 +1,5 @@
+import "@babylonjs/core/Debug/debugLayer";
+import "@babylonjs/inspector";
 import { BrowserRouter as Router } from 'react-router-dom'
 import RoutesList from './route'
 

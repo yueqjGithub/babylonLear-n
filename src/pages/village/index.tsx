@@ -1,4 +1,4 @@
-import { Animation, ArcRotateCamera, Color3, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, StandardMaterial, Texture, Vector3, Vector4 } from "@babylonjs/core"
+import { Animation, ArcRotateCamera, Axis, Color3, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, SceneLoader, Space, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
 import { useEffect, useRef } from "react"
 import earcut from 'earcut'
 
@@ -237,11 +237,78 @@ const Village = () => {
 
     // car position
     car.rotation.x = - Math.PI / 2
+    car.rotation.y = -Math.PI / 2
     car.position.y = 0.1 + 0.1
 
     car.position.x = 2
+    car.position.z = -8
 
     return car
+  }
+
+  const moveCar = (scene: Scene, car: Mesh) => {
+    const animCar = new Animation('carAnimation', 'position.z', 30, Animation.ANIMATIONTYPE_FLOAT, Animation.ANIMATIONLOOPMODE_CYCLE);
+    const carKey = []
+    carKey.push({
+      frame: 0,
+      value: -8,
+    })
+    carKey.push({
+      frame: 150,
+      value: 8,
+    })
+    carKey.push({
+      frame: 151,
+      value: 8,
+    })
+    animCar.setKeys(carKey)
+    car.animations = []
+    car.animations.push(animCar)
+    scene.beginAnimation(car, 0, 210, true)
+  }
+
+  // 导入人物
+  const genMan = (sence: Scene) => {
+    SceneLoader.ImportMeshAsync('him', '/scenes/', 'Dude.babylon', sence).then((result) => {
+      const dude = result.meshes[0]
+      dude.scaling = new Vector3(0.008, 0.008, 0.008)
+      dude.position = new Vector3(-6,0,1)
+      dude.rotate(Axis.Y, Tools.ToRadians(-95), Space.LOCAL);
+        const startRotation = dude.rotationQuaternion!.clone();    
+
+      sence.beginAnimation(result.skeletons[0], 0, 120, true, 1.0)
+
+      const track = [
+        { turn: 86, dist: 7 },
+        { turn: -85, dist: 14.8 },
+        { turn: -93, dist: 16.5 },
+        { turn: 48, dist: 25.5 },
+        { turn: -112, dist: 30.5 },
+        { turn: -72, dist: 33.2 },
+        { turn: 22, dist: 38 },
+        { turn: 35, dist: 39 },
+        { turn: -98, dist: 45.2 },
+        { turn: 0, dist: 47 },
+      ]
+      
+      let distance = 0
+      const step = 0.015
+      let p = 0
+      sence.onBeforeRenderObservable.add(() => {
+        dude.movePOV(0, 0, step)
+        distance += step
+        if (distance > track[p].dist) {
+          dude.rotate(Axis.Y, track[p].turn * Math.PI / 180, Space.LOCAL)
+          p +=1
+          p %= track.length
+          if (p === 0) {
+            distance = 0
+            dude.position = new Vector3(-6,0,1)
+            dude.rotationQuaternion = startRotation.clone()
+          }
+        }
+      })
+    })
   }
 
   useEffect(() => {
@@ -251,7 +318,10 @@ const Village = () => {
       const scenne = createScene(engine)
       putHouses(scenne)
 
-      genCar(scenne)
+      const car = genCar(scenne)
+      moveCar(scenne, car)
+
+      genMan(scenne)
 
       engine.runRenderLoop(() => {
         scenne.render()
