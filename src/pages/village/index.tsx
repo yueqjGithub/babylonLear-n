@@ -1,4 +1,4 @@
-import { Animation, ArcRotateCamera, Axis, Color3, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, SceneLoader, Space, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
+import { Animation, ArcRotateCamera, Axis, Color3, CubeTexture, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, SceneLoader, Space, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
 import { useEffect, useRef } from "react"
 import earcut from 'earcut'
 
@@ -58,6 +58,7 @@ const Village = () => {
     const scene = new Scene(engine)
 
     const camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 2.5, 20, new Vector3(0, 0, 0), scene)
+    camera.upperBetaLimit = Math.PI / 2.2;
     camera.attachControl(ref.current, true)
 
     const light = new HemisphericLight('light', new Vector3(4, 1, 0), scene)
@@ -89,6 +90,17 @@ const Village = () => {
     const largeGround = MeshBuilder.CreateGroundFromHeightMap('largeGround', 'https://doc.babylonjs.com/img/getstarted/villageheightmap.png', { width: 150, height: 150, subdivisions: 20, minHeight: 0, maxHeight: 10 }, scene)
     largeGround.material = largeGroundMat
     largeGround.position.y = -0.01;
+  }
+
+  const genSky = (scene: Scene) => {
+    const skybox = MeshBuilder.CreateBox("skyBox", { size: 150 }, scene);
+    const skyboxMaterial = new StandardMaterial("skyBox", scene);
+    skyboxMaterial.backFaceCulling = false;
+    skyboxMaterial.reflectionTexture = new CubeTexture("/sky/skybox", scene);
+    skyboxMaterial.reflectionTexture.coordinatesMode = Texture.SKYBOX_MODE;
+    skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+    skyboxMaterial.specularColor = new Color3(0, 0, 0);
+    skybox.material = skyboxMaterial;
   }
 
   const putHouses = (scenne: Scene) => {
@@ -334,6 +346,8 @@ const Village = () => {
       const engine = new Engine(ref.current, true)
 
       const scenne = createScene(engine)
+
+      genSky(scenne)
 
       genGround(scenne)
 
