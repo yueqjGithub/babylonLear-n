@@ -27,14 +27,14 @@ const Village = () => {
       UV[3] = new Vector4(0.4, 0, 0.6, 1.0); //left side
     }
     const boxMat = new StandardMaterial("boxMat");
-    const box = MeshBuilder.CreateBox('longBox', {faceUV: UV, wrap: true, width: type === 'box' ? 1 : 2, height: 1, depth: 1}, scene)
+    const box = MeshBuilder.CreateBox('longBox', { faceUV: UV, wrap: true, width: type === 'box' ? 1 : 2, height: 1, depth: 1 }, scene)
     box.material = boxMat;
     boxMat.diffuseTexture = new Texture(`https://doc.babylonjs.com/img/getstarted/${type === 'box' ? 'cubehouse' : 'semihouse'}.png`, scene);
     box.position.y = positionY
     box.position.x = positionX
 
     // 房顶
-    const roof = MeshBuilder.CreateCylinder("roof", {diameter: 1.3, height: type === 'box' ? 1.2 : 2.2, tessellation: 3}, scene);
+    const roof = MeshBuilder.CreateCylinder("roof", { diameter: 1.3, height: type === 'box' ? 1.2 : 2.2, tessellation: 3 }, scene);
     // 房顶材质
     const roofMat = new StandardMaterial("roofMat");
     roofMat.diffuseTexture = new Texture("https://assets.babylonjs.com/environments/roof.jpg", scene);
@@ -60,17 +60,35 @@ const Village = () => {
     const camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 2.5, 20, new Vector3(0, 0, 0), scene)
     camera.attachControl(ref.current, true)
 
-    const light = new HemisphericLight('light', new Vector3(0, 1, 0), scene)
+    const light = new HemisphericLight('light', new Vector3(4, 1, 0), scene)
 
     // 上面三要素不用说了噻
     // 地面
-    const ground = MeshBuilder.CreateGround('ground', { width: 20, height: 20 }, scene)
+    // const ground = MeshBuilder.CreateGround('ground', { width: 20, height: 20 }, scene)
 
-    // 绿色场地
-    const groundMat = new StandardMaterial("groundMat");
-    groundMat.diffuseColor = new Color3(0, 1, 0);
-    ground.material = groundMat; //Place the material property of the ground
+    // // 绿色场地
+    // const groundMat = new StandardMaterial("groundMat");
+    // groundMat.diffuseColor = new Color3(0, 1, 0);
+    // ground.material = groundMat; //Place the material property of the ground
+
     return scene
+  }
+
+  const genGround = (scene: Scene) => {
+
+    const groundMat = new StandardMaterial("groundMat");
+    groundMat.diffuseTexture = new Texture("https://assets.babylonjs.com/environments/villagegreen.png");
+    groundMat.diffuseTexture.hasAlpha = true;
+
+    const ground = MeshBuilder.CreateGround("ground", {width:24, height:24});
+    ground.material = groundMat;
+
+    const largeGroundMat = new StandardMaterial('largeGroundMat')
+    largeGroundMat.diffuseTexture = new Texture('https://assets.babylonjs.com/environments/valleygrass.png')
+
+    const largeGround = MeshBuilder.CreateGroundFromHeightMap('largeGround', 'https://doc.babylonjs.com/img/getstarted/villageheightmap.png', { width: 150, height: 150, subdivisions: 20, minHeight: 0, maxHeight: 10 }, scene)
+    largeGround.material = largeGroundMat
+    largeGround.position.y = -0.01;
   }
 
   const putHouses = (scenne: Scene) => {
@@ -199,7 +217,7 @@ const Village = () => {
     const wheelMat = new StandardMaterial("wheelMat");
     wheelMat.diffuseTexture = new Texture("https://assets.babylonjs.com/environments/wheel.png");
 
-    const wheelRB = MeshBuilder.CreateCylinder("wheelRB", {diameter: 0.125, height: 0.05, faceUV: wheelUV})
+    const wheelRB = MeshBuilder.CreateCylinder("wheelRB", { diameter: 0.125, height: 0.05, faceUV: wheelUV })
     wheelRB.material = wheelMat;
     wheelRB.parent = car;
     wheelRB.position.z = -0.1;
@@ -210,12 +228,12 @@ const Village = () => {
     // 关键帧
     const wheelKeys = []
     wheelKeys.push({
-        frame: 0,
-        value: 0
+      frame: 0,
+      value: 0
     })
     wheelKeys.push({
-        frame: 30,
-        value: 2 * Math.PI
+      frame: 30,
+      value: 2 * Math.PI
     })
     animWheel.setKeys(wheelKeys)
     wheelRB.animations = []
@@ -272,9 +290,9 @@ const Village = () => {
     SceneLoader.ImportMeshAsync('him', '/scenes/', 'Dude.babylon', sence).then((result) => {
       const dude = result.meshes[0]
       dude.scaling = new Vector3(0.008, 0.008, 0.008)
-      dude.position = new Vector3(-6,0,1)
+      dude.position = new Vector3(-6, 0, 1)
       dude.rotate(Axis.Y, Tools.ToRadians(-95), Space.LOCAL);
-        const startRotation = dude.rotationQuaternion!.clone();    
+      const startRotation = dude.rotationQuaternion!.clone();
 
       sence.beginAnimation(result.skeletons[0], 0, 120, true, 1.0)
 
@@ -290,7 +308,7 @@ const Village = () => {
         { turn: -98, dist: 45.2 },
         { turn: 0, dist: 47 },
       ]
-      
+
       let distance = 0
       const step = 0.015
       let p = 0
@@ -299,11 +317,11 @@ const Village = () => {
         distance += step
         if (distance > track[p].dist) {
           dude.rotate(Axis.Y, track[p].turn * Math.PI / 180, Space.LOCAL)
-          p +=1
+          p += 1
           p %= track.length
           if (p === 0) {
             distance = 0
-            dude.position = new Vector3(-6,0,1)
+            dude.position = new Vector3(-6, 0, 1)
             dude.rotationQuaternion = startRotation.clone()
           }
         }
@@ -316,6 +334,9 @@ const Village = () => {
       const engine = new Engine(ref.current, true)
 
       const scenne = createScene(engine)
+
+      genGround(scenne)
+
       putHouses(scenne)
 
       const car = genCar(scenne)
