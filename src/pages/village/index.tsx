@@ -1,4 +1,4 @@
-import { Animation, ArcRotateCamera, Axis, Color3, CubeTexture, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, SceneLoader, Space, Sprite, SpriteManager, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
+import { AbstractMesh, Animation, ArcRotateCamera, Axis, Color3, Color4, CubeTexture, Engine, HemisphericLight, Mesh, MeshBuilder, ParticleSystem, PointerEventTypes, Scene, SceneLoader, Space, Sprite, SpriteManager, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
 import { useEffect, useRef } from "react"
 import earcut from 'earcut'
 
@@ -125,6 +125,78 @@ const Village = () => {
     ufo.position.y = 3
     ufo.position.x = 2
     ufo.playAnimation(0,16,true,125)
+  }
+
+  const genFountain = (scene: Scene) => {
+    const fountainProfile = [
+      new Vector3(0, 0, 0),
+      new Vector3(10,0,0),
+      new Vector3(10, 4, 0),
+      new Vector3(8, 4, 0),
+      new Vector3(8, 1, 0),
+      new Vector3(1, 2, 0), 
+      new Vector3(1, 15, 0),
+      new Vector3(3, 17, 0)
+    ]
+    const fountainer = MeshBuilder.CreateLathe('fountain', { shape: fountainProfile, sideOrientation: Mesh.DOUBLESIDE }, scene)
+    // fountainer.position.y = 0.1
+    fountainer.position.x = -5
+    fountainer.position.z = -4
+    fountainer.scaling = new Vector3(0.05, 0.05, 0.05)
+
+    // 粒子
+    const particleSystem = new ParticleSystem('particles', 5000, scene)
+    particleSystem.particleTexture = new Texture('/texture/flare.png', scene)
+    // 发射区域
+    particleSystem.emitter = new Vector3(-5, 0.8, -4)
+    particleSystem.minEmitBox = new Vector3(-0.01, 0, -0.01)
+    particleSystem.maxEmitBox = new Vector3(0.01, 0, 0.01)
+
+    particleSystem.color1 = new Color4(0.7, 0.8, 1.0, 1.0)
+    particleSystem.color2 = new Color4(0.2, 0.5, 1.0, 1.0)
+    particleSystem.blendMode = ParticleSystem.BLENDMODE_ONEONE
+
+    particleSystem.minSize = 0.01;
+    particleSystem.maxSize = 0.05;
+
+    particleSystem.minLifeTime = 0.3;
+    particleSystem.maxLifeTime = 1.5;
+
+    particleSystem.emitRate = 1500;
+
+    particleSystem.direction1 = new Vector3(-1, 8, 1);
+    particleSystem.direction2 = new Vector3(1, 8, -1);
+
+    particleSystem.minEmitPower = 0.2;
+    particleSystem.maxEmitPower = 0.6;
+    particleSystem.updateSpeed = 0.01;
+
+    particleSystem.gravity = new Vector3(0, -9.81, 0);
+
+    particleSystem.start();
+
+    let switched = true
+
+    const pinterDown = (mesh: AbstractMesh) => {
+      if (mesh === fountainer) {
+        switched = !switched
+        if (switched) {
+          particleSystem.start()
+        } else {
+          particleSystem.stop()
+        }
+      }
+    }
+
+    scene.onPointerObservable.add((pointerInfo) => {
+      switch (pointerInfo.type) {
+        case PointerEventTypes.POINTERDOWN:
+          if (pointerInfo.pickInfo?.hit) {
+            pinterDown(pointerInfo.pickInfo.pickedMesh!)
+          }
+          break
+      }
+    })
   }
 
   const putHouses = (scenne: Scene) => {
@@ -375,6 +447,7 @@ const Village = () => {
 
       genTrees(scenne)
       genUfo(scenne)
+      genFountain(scenne)
 
       genGround(scenne)
 
