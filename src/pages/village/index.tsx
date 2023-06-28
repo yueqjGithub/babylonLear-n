@@ -1,4 +1,4 @@
-import { Animation, ArcRotateCamera, Axis, Color3, CubeTexture, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, SceneLoader, Space, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
+import { Animation, ArcRotateCamera, Axis, Color3, CubeTexture, Engine, HemisphericLight, Mesh, MeshBuilder, Scene, SceneLoader, Space, Sprite, SpriteManager, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
 import { useEffect, useRef } from "react"
 import earcut from 'earcut'
 
@@ -101,6 +101,30 @@ const Village = () => {
     skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
     skyboxMaterial.specularColor = new Color3(0, 0, 0);
     skybox.material = skyboxMaterial;
+  }
+
+  const genTrees = (scene: Scene) => {
+    const spriteManagerTrees = new SpriteManager('treeManager', '/sprite/palmtree.png', 2000, { width: 512, height: 1024 }, scene)
+    for (let i = 0; i < 500; i++) {
+      const tree = new Sprite('tree', spriteManagerTrees)
+      tree.position.x = Math.random() * (-30)
+      tree.position.z = Math.random() * 20 + 8
+      tree.position.y = 0.5
+    }
+    for (let i = 0; i < 500; i++) {
+      const tree = new Sprite("tree", spriteManagerTrees);
+      tree.position.x = Math.random() * (25) + 7;
+      tree.position.z = Math.random() * -35  + 8;
+      tree.position.y = 0.5;
+    }
+  }
+
+  const genUfo = (scene: Scene) => {
+    const spriteManagerUfo = new SpriteManager('ufo', '/sprite/ufo.png', 2000, { width: 128, height: 76 }, scene)
+    const ufo = new Sprite('ufo', spriteManagerUfo)
+    ufo.position.y = 3
+    ufo.position.x = 2
+    ufo.playAnimation(0,16,true,125)
   }
 
   const putHouses = (scenne: Scene) => {
@@ -270,7 +294,7 @@ const Village = () => {
     car.rotation.y = -Math.PI / 2
     car.position.y = 0.1 + 0.1
 
-    car.position.x = 2
+    car.position.x = 3
     car.position.z = -8
 
     return car
@@ -348,6 +372,9 @@ const Village = () => {
       const scenne = createScene(engine)
 
       genSky(scenne)
+
+      genTrees(scenne)
+      genUfo(scenne)
 
       genGround(scenne)
 
