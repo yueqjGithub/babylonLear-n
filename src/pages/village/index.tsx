@@ -1,4 +1,4 @@
-import { AbstractMesh, Animation, ArcRotateCamera, Axis, Color3, Color4, CubeTexture, Engine, HemisphericLight, Mesh, MeshBuilder, ParticleSystem, PointerEventTypes, Scene, SceneLoader, Space, Sprite, SpriteManager, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
+import { AbstractMesh, Animation, ArcRotateCamera, Axis, Color3, Color4, CubeTexture, Engine, HemisphericLight, Mesh, MeshBuilder, ParticleSystem, PointerEventTypes, Scene, SceneLoader, Space, SpotLight, Sprite, SpriteManager, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
 import { useEffect, useRef } from "react"
 import earcut from 'earcut'
 
@@ -62,6 +62,7 @@ const Village = () => {
     camera.attachControl(ref.current, true)
 
     const light = new HemisphericLight('light', new Vector3(4, 1, 0), scene)
+    light.intensity = 0.5
 
     // 上面三要素不用说了噻
     // 地面
@@ -81,7 +82,7 @@ const Village = () => {
     groundMat.diffuseTexture = new Texture("https://assets.babylonjs.com/environments/villagegreen.png");
     groundMat.diffuseTexture.hasAlpha = true;
 
-    const ground = MeshBuilder.CreateGround("ground", {width:24, height:24});
+    const ground = MeshBuilder.CreateGround("ground", { width: 24, height: 24 });
     ground.material = groundMat;
 
     const largeGroundMat = new StandardMaterial('largeGroundMat')
@@ -114,7 +115,7 @@ const Village = () => {
     for (let i = 0; i < 500; i++) {
       const tree = new Sprite("tree", spriteManagerTrees);
       tree.position.x = Math.random() * (25) + 7;
-      tree.position.z = Math.random() * -35  + 8;
+      tree.position.z = Math.random() * -35 + 8;
       tree.position.y = 0.5;
     }
   }
@@ -124,17 +125,17 @@ const Village = () => {
     const ufo = new Sprite('ufo', spriteManagerUfo)
     ufo.position.y = 3
     ufo.position.x = 2
-    ufo.playAnimation(0,16,true,125)
+    ufo.playAnimation(0, 16, true, 125)
   }
 
   const genFountain = (scene: Scene) => {
     const fountainProfile = [
       new Vector3(0, 0, 0),
-      new Vector3(10,0,0),
+      new Vector3(10, 0, 0),
       new Vector3(10, 4, 0),
       new Vector3(8, 4, 0),
       new Vector3(8, 1, 0),
-      new Vector3(1, 2, 0), 
+      new Vector3(1, 2, 0),
       new Vector3(1, 15, 0),
       new Vector3(3, 17, 0)
     ]
@@ -437,6 +438,49 @@ const Village = () => {
     })
   }
 
+  // 路灯
+  const genLamp = (scene: Scene) => {
+    const lampLight = new SpotLight("lampLight", Vector3.Zero(), new Vector3(0, -1, 0), Math.PI, 1, scene);
+    lampLight.diffuse = Color3.Yellow();
+
+    const lampShape = [];
+    for (let i = 0; i < 20; i++) {
+      lampShape.push(new Vector3(Math.cos(i * Math.PI / 10), Math.sin(i * Math.PI / 10), 0));
+    }
+    lampShape.push(lampShape[0]); //close shape
+
+    //extrusion path
+    const lampPath = [];
+    lampPath.push(new Vector3(0, 0, 0));
+    lampPath.push(new Vector3(0, 10, 0));
+    for (let i = 0; i < 20; i++) {
+      lampPath.push(new Vector3(1 + Math.cos(Math.PI - i * Math.PI / 40), 10 + Math.sin(Math.PI - i * Math.PI / 40), 0));
+    }
+    lampPath.push(new Vector3(3, 11, 0));
+
+    const yellowMat = new StandardMaterial("yellowMat");
+    yellowMat.emissiveColor = Color3.Yellow();
+
+    //extrude lamp
+    const lamp = MeshBuilder.ExtrudeShape("lamp", { cap: Mesh.CAP_END, shape: lampShape, path: lampPath, scale: 0.3 });
+
+    //add bulb
+    const bulb = MeshBuilder.CreateSphere("bulb", { diameterX: 1.5, diameterZ: 0.8 });
+
+    bulb.material = yellowMat;
+    bulb.parent = lamp;
+    bulb.position.x = 2;
+    bulb.position.y = 10.5;
+
+    lampLight.parent = bulb;
+
+    lamp.scaling = new Vector3(0.15, 0.15, 0.15);
+    lamp.position.x = 2
+
+    const lamp_copy_1 = lamp.clone("lamp_copy_1");
+    lamp_copy_1.position.z = 5
+  }
+
   useEffect(() => {
     if (!renderRef.current) {
       const engine = new Engine(ref.current, true)
@@ -446,8 +490,9 @@ const Village = () => {
       genSky(scenne)
 
       genTrees(scenne)
-      genUfo(scenne)
+      // genUfo(scenne)
       genFountain(scenne)
+      genLamp(scenne)
 
       genGround(scenne)
 
