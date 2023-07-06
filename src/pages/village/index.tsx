@@ -1,4 +1,5 @@
-import { AbstractMesh, Animation, ArcRotateCamera, Axis, Color3, Color4, CubeTexture, Engine, HemisphericLight, Mesh, MeshBuilder, ParticleSystem, PointerEventTypes, Scene, SceneLoader, Space, SpotLight, Sprite, SpriteManager, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
+import { AbstractMesh, Animation, ArcRotateCamera, Axis, Color3, Color4, CubeTexture, DirectionalLight, Engine, HemisphericLight, Mesh, MeshBuilder, ParticleSystem, PointerEventTypes, Scene, SceneLoader, ShadowGenerator, Space, SpotLight, Sprite, SpriteManager, StandardMaterial, Texture, Tools, Vector3, Vector4 } from "@babylonjs/core"
+import * as GUI from '@babylonjs/gui'
 import { useEffect, useRef } from "react"
 import earcut from 'earcut'
 
@@ -61,9 +62,6 @@ const Village = () => {
     camera.upperBetaLimit = Math.PI / 2.2;
     camera.attachControl(ref.current, true)
 
-    const light = new HemisphericLight('light', new Vector3(4, 1, 0), scene)
-    light.intensity = 0.5
-
     // 上面三要素不用说了噻
     // 地面
     // const ground = MeshBuilder.CreateGround('ground', { width: 20, height: 20 }, scene)
@@ -74,6 +72,27 @@ const Village = () => {
     // ground.material = groundMat; //Place the material property of the ground
 
     return scene
+  }
+
+  // const globalLight = (scene: Scene) => {
+  //   const light = new HemisphericLight('light', new Vector3(4, 1, 0), scene)
+  //   light.intensity = 0.5
+  //   return light
+  // }
+
+  const globalLight = (scene: Scene) => {
+    const light = new DirectionalLight('dir', new Vector3(0,-1,-1), scene)
+    light.position = new Vector3(0, 30, 50);
+    light.intensity = 0.5
+
+    return light
+  }
+
+  const shadowControl = (light: DirectionalLight) => {
+    const shadowGenerator = new ShadowGenerator(1024, light)
+    return (target: Mesh) => {
+      shadowGenerator.addShadowCaster(target, true)
+    }
   }
 
   const genGround = (scene: Scene) => {
@@ -91,6 +110,8 @@ const Village = () => {
     const largeGround = MeshBuilder.CreateGroundFromHeightMap('largeGround', 'https://doc.babylonjs.com/img/getstarted/villageheightmap.png', { width: 150, height: 150, subdivisions: 20, minHeight: 0, maxHeight: 10 }, scene)
     largeGround.material = largeGroundMat
     largeGround.position.y = -0.01;
+
+    ground.receiveShadows = true;
   }
 
   const genSky = (scene: Scene) => {
@@ -292,7 +313,7 @@ const Village = () => {
     rHouse5!.rotation.y = Math.PI / 1.2
   }
 
-  const genCar = (scene: Scene) => {
+  const genCar = (scene: Scene, genShadow: any) => {
 
     // 车身UV
     const faceUV = new Array(2)
@@ -369,7 +390,9 @@ const Village = () => {
 
     car.position.x = 3
     car.position.z = -8
-
+    car.getChildMeshes().forEach((m: any) => {
+      genShadow(m)
+    })
     return car
   }
 
@@ -395,7 +418,7 @@ const Village = () => {
   }
 
   // 导入人物
-  const genMan = (sence: Scene) => {
+  const genMan = (sence: Scene, shadowGen: any) => {
     SceneLoader.ImportMeshAsync('him', '/scenes/', 'Dude.babylon', sence).then((result) => {
       const dude = result.meshes[0]
       dude.scaling = new Vector3(0.008, 0.008, 0.008)
@@ -435,6 +458,7 @@ const Village = () => {
           }
         }
       })
+      shadowGen(dude)
     })
   }
 
@@ -481,11 +505,50 @@ const Village = () => {
     lamp_copy_1.position.z = 5
   }
 
+  const genGUI = (light: HemisphericLight | DirectionalLight) => {
+    const adt = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+    const panel = new GUI.StackPanel();
+
+    panel.width = "220px";
+    panel.top = '-50px';
+    panel.horizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    panel.verticalAlignment = GUI.Control.VERTICAL_ALIGNMENT_BOTTOM;
+    adt.addControl(panel);
+
+    const header = new GUI.TextBlock();
+    header.text = 'Night to Day'
+    header.height = '30px'
+    header.color = 'white'
+    panel.addControl(header)
+
+    const slider = new GUI.Slider();
+    slider.minimum = 0;
+    slider.maximum = 1;
+    slider.borderColor = 'black'
+    slider.color = '#aaa'
+    slider.background = '#fff'
+    slider.value = 0.5
+    slider.height = '20px'
+    slider.width = '200px'
+    panel.addControl(slider)
+
+    slider.onValueChangedObservable.add((value) => {
+      light.intensity = value
+    })
+  }
+
   useEffect(() => {
     if (!renderRef.current) {
       const engine = new Engine(ref.current, true)
 
       const scenne = createScene(engine)
+
+      const light = globalLight(scenne)
+
+      const shadowGen = shadowControl(light)
+
+      genGUI(light)
 
       genSky(scenne)
 
@@ -498,10 +561,9 @@ const Village = () => {
 
       putHouses(scenne)
 
-      const car = genCar(scenne)
+      const car = genCar(scenne, shadowGen)
       moveCar(scenne, car)
-
-      genMan(scenne)
+      genMan(scenne, shadowGen)
 
       engine.runRenderLoop(() => {
         scenne.render()
