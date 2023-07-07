@@ -58,9 +58,7 @@ const Village = () => {
 
     const scene = new Scene(engine)
 
-    const camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 2.5, 20, new Vector3(0, 0, 0), scene)
-    camera.upperBetaLimit = Math.PI / 2.2;
-    camera.attachControl(ref.current, true)
+    
 
     // 上面三要素不用说了噻
     // 地面
@@ -72,6 +70,12 @@ const Village = () => {
     // ground.material = groundMat; //Place the material property of the ground
 
     return scene
+  }
+  const createCamera = (scene: Scene) => {
+    const camera = new ArcRotateCamera('camera', Math.PI / 2, Math.PI / 2.5, 1250, new Vector3(0, 60, 0), scene)
+    camera.upperBetaLimit = Math.PI / 2.2;
+    camera.attachControl(ref.current, true)
+    return camera
   }
 
   // const globalLight = (scene: Scene) => {
@@ -418,7 +422,7 @@ const Village = () => {
   }
 
   // 导入人物
-  const genMan = (sence: Scene, shadowGen: any) => {
+  const genMan = (sence: Scene, shadowGen: any, camera: ArcRotateCamera) => {
     SceneLoader.ImportMeshAsync('him', '/scenes/', 'Dude.babylon', sence).then((result) => {
       const dude = result.meshes[0]
       dude.scaling = new Vector3(0.008, 0.008, 0.008)
@@ -459,6 +463,7 @@ const Village = () => {
         }
       })
       shadowGen(dude)
+      camera.parent = dude
     })
   }
 
@@ -544,6 +549,8 @@ const Village = () => {
 
       const scenne = createScene(engine)
 
+      const camera = createCamera(scenne)
+
       const light = globalLight(scenne)
 
       const shadowGen = shadowControl(light)
@@ -563,7 +570,7 @@ const Village = () => {
 
       const car = genCar(scenne, shadowGen)
       moveCar(scenne, car)
-      genMan(scenne, shadowGen)
+      genMan(scenne, shadowGen, camera)
 
       engine.runRenderLoop(() => {
         scenne.render()
