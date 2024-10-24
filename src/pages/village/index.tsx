@@ -145,13 +145,13 @@ const Village = () => {
     }
   }
 
-  const genUfo = (scene: Scene) => {
-    const spriteManagerUfo = new SpriteManager('ufo', '/sprite/ufo.png', 2000, { width: 128, height: 76 }, scene)
-    const ufo = new Sprite('ufo', spriteManagerUfo)
-    ufo.position.y = 3
-    ufo.position.x = 2
-    ufo.playAnimation(0, 16, true, 125)
-  }
+  // const genUfo = (scene: Scene) => {
+  //   const spriteManagerUfo = new SpriteManager('ufo', '/sprite/ufo.png', 2000, { width: 128, height: 76 }, scene)
+  //   const ufo = new Sprite('ufo', spriteManagerUfo)
+  //   ufo.position.y = 3
+  //   ufo.position.x = 2
+  //   ufo.playAnimation(0, 16, true, 125)
+  // }
 
   const genFountain = (scene: Scene) => {
     const fountainProfile = [

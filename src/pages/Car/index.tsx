@@ -14,7 +14,7 @@ const CarPage = () => {
     ref.current!.height = h
     const camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, new Vector3(0, 0, 0));
     camera.attachControl(ref.current, true);
-    const light = new HemisphericLight("light", new Vector3(0, 1, 0), scene);
+    new HemisphericLight("light", new Vector3(0, 1, 0), scene);
     
     const car = buildCar(scene);
     car.rotation.x = -Math.PI / 2;

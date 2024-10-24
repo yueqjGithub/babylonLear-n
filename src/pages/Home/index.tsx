@@ -19,9 +19,9 @@ const HomePage = () => {
       const camera = new ArcRotateCamera('camera', -Math.PI/2, Math.PI / 2.5, 3, new Vector3(0,0,0), scene)
       camera.attachControl(ref.current, true)
 
-      const light = new HemisphericLight('light', new Vector3(0,1,1), scene)
+      new HemisphericLight('light', new Vector3(0,1,1), scene)
 
-      const box = MeshBuilder.CreateBox('box', {}, scene)
+      MeshBuilder.CreateBox('box', {}, scene)
 
       engine.runRenderLoop(() => {
         scene.render()

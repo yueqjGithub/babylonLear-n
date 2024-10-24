@@ -36,6 +36,10 @@ const routeList: RouteObject[] = [
         Component: lazy(() => import('../pages/Car'))
       },
       {
+        path: 'amc',
+        Component: lazy(() => import('../pages/amc'))
+      },
+      {
         index: true,
         // element: <div onClick={() => {
         //   document.documentElement.style.setProperty('--color-primary', 'red')

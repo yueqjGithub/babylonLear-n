@@ -21,6 +21,7 @@ const PageLayout = () => {
           <li><Link className="text-primary" to={'/home'}>HOME</Link></li>
           <li><Link className="text-primary" to={'/village'}>农村</Link></li>
           <li><Link className="text-primary" to={'/car'}>小汽车</Link></li>
+          <li><Link className="text-primary" to={'/amc'}>atv</Link></li>
         </ul>
       </div>
       <div className={`${styles.contentContainer} flex-1 full-height`}>
